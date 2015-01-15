@@ -19,27 +19,18 @@
 #
 include_recipe 'composer'
 
-
-git node[:drupal][:drush][:dir] do
-  repository node[:drupal][:drush][:repository]
-  reference node[:drupal][:drush][:revision]
-  action :sync
-end
-
-link node[:drupal][:drush][:executable] do
-  to "#{node[:drupal][:drush][:dir]}/drush"
-  link_type :symbolic
-end
-
- # we are going to remove all the files in this folder, this will allow
-# the drush make to occur
+# Install Drush via composer
 bash 'Install Drush' do
   user 'root'
-  cwd node[:drupal][:drush][:dir]
-  cmd = 'composer install'
+  cmd = "composer global require drush/drush:#{node[:drupal][:drush][:revision]}"
   code <<-EOH
     set -x
     set -e
     #{cmd}
   EOH
+end
+
+link node[:drupal][:drush][:executable] do
+  to "#{node[:drupal][:drush][:dir]}/drush"
+  link_type :symbolic
 end
